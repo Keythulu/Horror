@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d9a5049386aa4264b82ac24491b209e4
+labels:
+- Character
+- Controller
+- Input
+timeCreated: 1509450637
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
