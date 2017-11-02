@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Light))]
+[RequireComponent(typeof(FirstPersonController))]
+[RequireComponent(typeof(Camera))]
 public class FlashlightHandler : MonoBehaviour {
 
     //References to the objects that are manipulated by this script

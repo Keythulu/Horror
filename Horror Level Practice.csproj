@@ -219,6 +219,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Character\AI\BaseClasses\Action.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BaseClasses\Decision.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BaseClasses\State.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BaseClasses\StateController.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BaseClasses\Transition.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BasicChaserAI\ActiveStateDecision.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BasicChaserAI\ChaseAction.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BasicChaserAI\LookDecision.cs" />
+    <Compile Include="Assets\Scripts\Character\AI\BasicChaserAI\PatrolAction.cs" />
+    <Compile Include="Assets\Scripts\Character\EnemyData\BasicEnemyData.cs" />
     <Compile Include="Assets\Scripts\Character\FlashlightHandler.cs" />
     <Compile Include="Assets\Scripts\Character\Input\FirstPersonController.cs" />
     <Compile Include="Assets\Scripts\Inspectors and Editors\LightFlickerCustomInspector.cs" />

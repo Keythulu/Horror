@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //THIS CLASS USES A CUSTOM INSPECTOR SCRIPT
+[RequireComponent(typeof(Light))]
 public class LightFlicker : MonoBehaviour {
 
     //Simple flicker effect achieved with interpolating between a randomized range of a point light

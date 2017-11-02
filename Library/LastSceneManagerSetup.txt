@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/railway_Scene.unity
+- path: Assets/Scenes/Testing/EnemyPathingTestArea.unity
   isLoaded: 1
   isActive: 1
