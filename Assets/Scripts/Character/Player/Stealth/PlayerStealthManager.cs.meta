@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 101ebed30449dda41b5ed23576955e7d
+labels:
+- Manager
+- Player
+- Stealth
+timeCreated: 1509814614
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

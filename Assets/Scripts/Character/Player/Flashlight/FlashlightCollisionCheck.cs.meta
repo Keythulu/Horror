@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 30d8e25f67a841540be6b2d430016c1f
+labels:
+- Flashlight
+- Player
+timeCreated: 1509680679
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
