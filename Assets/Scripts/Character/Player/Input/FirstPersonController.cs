@@ -2,73 +2,73 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerActor))]
 [RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(Camera))]
-[RequireComponent(typeof(FlashlightController))]
 public class FirstPersonController : MonoBehaviour {
 
-    private string horizontalAxisName = "Horizontal";
-    private string forwardAxisName = "Vertical";
-    private string leftShiftAxisName = "Left Shift";
-    private string leftCtrlAxisName = "Left Ctrl";
-    private string jumpAxisName = "Jump";
+    //In case these ever changes
+    string horizontalAxisName = "Horizontal";
+    string forwardAxisName = "Vertical";
+    string leftShiftAxisName = "Left Shift";
+    string leftCtrlAxisName = "Left Ctrl";
+    string jumpAxisName = "Jump";
 
-    private Quaternion startCameraRotation;
+    //GetComponent references
+    PlayerActor playerActor;
+    CharacterController characterController;
+    Camera firstPersonCamera;
+    FlashlightController flashlight;
 
-    //Inspector Set Variables
-    //
-    [Header("Required Controller Components")]
-    public CharacterController characterController;
-    public Camera firstPersonCamera;
-    public FlashlightController flashlight;
+    //Camera movement helper variables
+    Quaternion startCameraRotation;   
+    Vector3 standingCameraPosition;
+    Vector3 crouchingCameraPosition;
 
-    [Header("Camera Settings")]
-    [Range(0, 500)]
-    public float mouseSensitivity;
+    //Initial gravity setter
+    Vector3 gravity = Vector3.zero;
 
-    [Header("Movement Settings")]
-    [Range(0, 20)]
-    public float slowWalkSpeed;
-    [Range(0, 20)]
-    public float walkSpeed;
-    [Range(0, 20)]
-    public float runSpeed;
+    //Movement state check variables
+    bool jump;
+    float horizontalMove;
+    float forwardMove;
+    float currentMoveSpeed = 0;
+    Vector3 direction;
+    [HideInInspector] public bool crouching;
 
-    [Header("Crouch")]
-    public bool crouching;
-    public Transform standingCameraTransform;
-    public CapsuleCollider standingCollider;
-    public Transform crouchingCameraTransform;
-    public CapsuleCollider crouchingCollider;
+    //Temporary transform for scaling player capsule for Debug
+    [SerializeField]
+    private Transform capsuleGraphics;
 
-    [Header("Jump")]
-    public bool jump;
-    public float jumpForce;
-
-    private Vector3 gravity = Vector3.zero;
-
-    //
-    //
-
-    
+    public void Awake()
+    {
+        playerActor = GetComponent<PlayerActor>();
+        if (playerActor == null)
+            throw new UnassignedReferenceException();
+        characterController = GetComponent<CharacterController>();
+        if (characterController == null)
+            throw new UnassignedReferenceException();
+        firstPersonCamera = GetComponentInChildren<Camera>();
+        if (firstPersonCamera == null)
+            throw new UnassignedReferenceException();
+        flashlight = GetComponentInChildren<FlashlightController>();
+        if (flashlight == null)
+            throw new UnassignedReferenceException();
+    }
 
     private void Start()
     {
-        //Captures the starting rotation from the camera to determine the angle between it's current position and its centre position
-        startCameraRotation = firstPersonCamera.transform.rotation;
+        startCameraRotation = firstPersonCamera.transform.rotation;      
+        firstPersonCamera.transform.position = new Vector3(transform.position.x + 0.14f, transform.position.y + 0.55f, transform.position.z);
     }
+
     public void FixedUpdate()
     {
         UpdatePosition();
         UpdateCamera();
     }
 
-    //This helper method handles the users input and updates their position accordingly
     private void UpdatePosition()
     {
-        float horizontalMove;
-        float forwardMove;
-
         if (Input.GetButton(horizontalAxisName))
             horizontalMove = Input.GetAxis(horizontalAxisName);
         else
@@ -77,70 +77,73 @@ public class FirstPersonController : MonoBehaviour {
             forwardMove = Input.GetAxis(forwardAxisName);
         else
             forwardMove = 0;
-  
-        if (Input.GetButton(leftCtrlAxisName))
+
+        if (((Input.GetButton(leftCtrlAxisName)) || 
+                (Physics.Raycast(transform.position + characterController.center + new Vector3(0, characterController.height/2, 0), transform.up, 0.5f)) ||
+                (Physics.Raycast(transform.position + characterController.center + new Vector3(0, characterController.height / 2, 0) + transform.forward * characterController.radius, transform.up, 0.5f)) ||
+                (Physics.Raycast(transform.position + characterController.center + new Vector3(0, characterController.height / 2, 0) + -transform.forward * characterController.radius, transform.up, 0.5f)) ||
+                (Physics.Raycast(transform.position + characterController.center + new Vector3(0, characterController.height / 2, 0) + transform.right * characterController.radius, transform.up, 0.5f)) ||
+                (Physics.Raycast(transform.position + characterController.center + new Vector3(0, characterController.height / 2, 0) + -transform.right * characterController.radius, transform.up, 0.5f))) &&
+                (!jump))
             crouching = true;
         else
             crouching = false;
 
-        if (!characterController.isGrounded)
+        if (!Physics.Raycast(transform.position + characterController.center - new Vector3(0, characterController.height / 2, 0), -transform.up, 0.1f))
         {
+            jump = true;
             gravity += Physics.gravity * Time.deltaTime;
-            if (Input.GetButton(jumpAxisName))
-            {
-                jump = true;
-            }
-            else
-                jump = false;
+            float jumpEnterMoveSpeed = currentMoveSpeed;
         }
         else
         {
+            jump = false;
             gravity = Vector3.zero;
-            if (jump)
+            if ((Input.GetButtonDown(jumpAxisName)) && (!crouching))
             {
-                gravity += new Vector3(0, jumpForce, 0);
-                jump = false;
+                gravity += new Vector3(0, playerActor.playerData.movementProperties.jumpForce, 0);
             }
+               
         }
 
+        CrouchCheck();
 
-        Crouch();
-
-        float currentMoveSpeed = 0;
-        Vector3 direction = ((forwardMove * transform.forward) + (horizontalMove * transform.right)).normalized;
+        if (!jump)
+            direction = ((forwardMove * transform.forward) + (horizontalMove * transform.right)).normalized;
+        else
+            direction = Vector3.Lerp(direction, ((forwardMove * transform.forward) + (horizontalMove * transform.right)).normalized, 0.03f);
         if ((horizontalMove != 0) || (forwardMove != 0))
         {
             if (crouching)
             {
-                currentMoveSpeed = slowWalkSpeed;             
+                currentMoveSpeed = playerActor.playerData.movementProperties.slowWalkSpeed;
             }
             else
             {
                 //Checks whether player is sprinting or focussing their flashlight
-                if (Input.GetButton(leftShiftAxisName))
+                if (!jump)
                 {
-                    if (!flashlight.focussed)
+                    if (Input.GetButton(leftShiftAxisName))
                     {
-                        Debug.Log("Sprinting Unfocussed");
-                        currentMoveSpeed = runSpeed;
+                        if (!flashlight.focussed)
+                        {
+                            currentMoveSpeed = playerActor.playerData.movementProperties.sprintSpeed;
+                        }
+                        else
+                        {
+                            currentMoveSpeed = playerActor.playerData.movementProperties.slowWalkSpeed;
+                        }
                     }
                     else
                     {
-                        Debug.Log("Sprinting Focussed");
-                        currentMoveSpeed = slowWalkSpeed;
-                    }
-                }
-                else
-                {
-                    if (!flashlight.focussed)
-                    {
-                        Debug.Log("Not Sprinting Unfocussed");
-                        currentMoveSpeed = walkSpeed;
-                    }
-                    else
-                    {
-                        Debug.Log("Not Sprinting Focussed");
-                        currentMoveSpeed = slowWalkSpeed;
+                        if (!flashlight.focussed)
+                        {
+                            currentMoveSpeed = playerActor.playerData.movementProperties.walkSpeed;
+                        }
+                        else
+                        {
+                            currentMoveSpeed = playerActor.playerData.movementProperties.slowWalkSpeed;
+                        }
                     }
                 }
             }
@@ -149,7 +152,6 @@ public class FirstPersonController : MonoBehaviour {
         characterController.Move(gravity * Time.deltaTime);
     }
     
-    //This helper method handles the users mouse input , which rotates their gameObject or the camera based on the axis
     private void UpdateCamera()
     {
         //Updates the camera rotation on the y and z axis, but keeps the original x rotation to determine the angle between it's current position and its starting position
@@ -158,10 +160,13 @@ public class FirstPersonController : MonoBehaviour {
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        //Rotates the gameObject on the y axis by the mouseX input * sensitivity
-        this.transform.Rotate(0, mouseX * mouseSensitivity * Time.fixedDeltaTime, 0);
-        //Rotates the gameObject on the x axis by the mouseY input * sensitivity (negative mouseY value to make forward mouse movement rotate the camera up)
-        firstPersonCamera.transform.Rotate(-mouseY * mouseSensitivity * Time.fixedDeltaTime, 0, 0);
+        if (playerActor.playerData.inputProperties.mouseSensitivity == 0)
+            throw new System.Exception("Mouse sensitivity is set 0. Camera movement will be disabled");
+
+        //Gameobject rotation
+        transform.Rotate(0, mouseX * playerActor.playerData.inputProperties.mouseSensitivity * Time.fixedDeltaTime, 0);
+        //Camera rotation
+        firstPersonCamera.transform.Rotate(-mouseY * playerActor.playerData.inputProperties.mouseSensitivity * Time.fixedDeltaTime, 0, 0);
        
 
         float angle = Quaternion.Angle(firstPersonCamera.transform.rotation, startCameraRotation);
@@ -179,21 +184,99 @@ public class FirstPersonController : MonoBehaviour {
         }
    }
 
-    private void Crouch()
+    private void CrouchCheck()
     {
+        //Sets camera position for crouch switching
+        standingCameraPosition = new Vector3(transform.position.x + 0.14f, transform.position.y + 0.55f, transform.position.z);
+        crouchingCameraPosition = new Vector3(transform.position.x + 0.14f, transform.position.y - 0.45f, transform.position.z);
+
         if (crouching)
         {
-            Debug.Log("crouching boi");
-            standingCollider.enabled = false;
-            crouchingCollider.enabled = true;
-            firstPersonCamera.transform.position = Vector3.Lerp(firstPersonCamera.transform.position, crouchingCameraTransform.transform.position, 0.1f);
+            //This needs to be reset to allow 
+            characterController.stepOffset = 0.3f;
+            //Temporary lines for visualisation of crouch
+            if (capsuleGraphics.localScale.y > 0.5f)
+                capsuleGraphics.localScale = Vector3.Lerp(capsuleGraphics.localScale, new Vector3(1, 0.5f, 1), 0.5f);
+            else
+            {
+                if (capsuleGraphics.localScale.y <= 0.55f)
+                    capsuleGraphics.localScale = new Vector3(1, 0.5f, 1);
+            }
+            if (capsuleGraphics.localPosition.y > -0.5)
+                capsuleGraphics.localPosition = Vector3.Lerp(capsuleGraphics.localPosition, new Vector3(0, -0.5f, 0), 0.5f);
+            else
+            {
+                if (capsuleGraphics.localPosition.y <= -0.45f)
+                    capsuleGraphics.localPosition = new Vector3(0, -0.5f, 0);
+            }
+            //
+            if (characterController.height > 1)
+                characterController.height = Mathf.Lerp(characterController.height, 1, 0.5f);
+            else
+            {
+                if (characterController.height <= 1.1f)
+                    characterController.height = 1;
+            }
+            if (characterController.center.y > -0.5)
+                characterController.center = Vector3.Lerp(characterController.center, new Vector3(0, -0.5f, 0), 0.5f);
+            else
+            {
+                if (characterController.center.y <= -0.45f)
+                    characterController.center = new Vector3(0, -0.5f, 0);
+            }
+            if (Vector3.Distance(firstPersonCamera.transform.position, crouchingCameraPosition) > 0.5f)
+            {
+                firstPersonCamera.transform.position = Vector3.Lerp(firstPersonCamera.transform.position, crouchingCameraPosition, 0.5f);
+            }
+            else
+            {
+                if (Vector3.Distance(firstPersonCamera.transform.position, crouchingCameraPosition) < 0.5f)
+                    firstPersonCamera.transform.position = crouchingCameraPosition;
+            }
         }
         else
         {
-            Debug.Log("Not so crouching boi");
-            standingCollider.enabled = true;
-            crouchingCollider.enabled = false;
-            firstPersonCamera.transform.position = Vector3.Lerp(firstPersonCamera.transform.position, standingCameraTransform.transform.position, 0.1f);
+            //This removes jumpineess when jumping over obstacles
+            characterController.stepOffset = 1;
+            //Temporary lines for visualisation of crouch
+            if (capsuleGraphics.localScale.y < 1)
+                capsuleGraphics.localScale = Vector3.Lerp(capsuleGraphics.localScale, new Vector3(1, 1, 1), 0.5f);
+            else
+            {
+                if (capsuleGraphics.localScale.y >= 0.9f)
+                    capsuleGraphics.localScale = new Vector3(1, 1, 1);
+            }
+            if (capsuleGraphics.localPosition.y < 0)
+                capsuleGraphics.localPosition = Vector3.Lerp(capsuleGraphics.localPosition, new Vector3(0, 0, 0), 0.5f);
+            else
+            {
+                if (capsuleGraphics.localPosition.y >= -0.1f)
+                    capsuleGraphics.localPosition = new Vector3(0, 0, 0);
+            }
+            //
+            if (characterController.height < 2)
+                characterController.height = Mathf.Lerp(characterController.height, 2, 0.5f);
+            else
+            {
+                if (characterController.height >= 1.9f)
+                    characterController.height = 2;
+            }
+            if (characterController.center.y < 0)
+                characterController.center = Vector3.Lerp(characterController.center, new Vector3(0, 0, 0), 0.5f);
+            else
+            {
+                if (characterController.center.y >= -0.1f)
+                    characterController.center = new Vector3(0, 0, 0);
+            }
+            if (Vector3.Distance(firstPersonCamera.transform.position, standingCameraPosition) > 0.5f)
+            {
+                firstPersonCamera.transform.position = Vector3.Lerp(firstPersonCamera.transform.position, standingCameraPosition, 0.5f);
+            }
+            else
+            {
+                if (Vector3.Distance(firstPersonCamera.transform.position, standingCameraPosition) <= 0.5f)
+                    firstPersonCamera.transform.position = standingCameraPosition;
+            }
         }
     }
 }

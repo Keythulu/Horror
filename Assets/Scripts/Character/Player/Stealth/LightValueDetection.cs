@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerStealthManager))]
 public class LightValueDetection : MonoBehaviour {
     //
     //This script handles my form of "light detection" with ranges and intensities of lights to output a lightValue that will serve as a percentage modifier
@@ -13,10 +12,15 @@ public class LightValueDetection : MonoBehaviour {
     private Light[] sceneLights;
 
     //Used as a percentage modifier to determine whether the player will be revealed if in sight range of an enemy
-    [Range(0, 100)]
-    public float lightValue;
-    public GameObject player;
+    [HideInInspector] public float lightValue;
+    Transform player;
 
+    private void Awake()
+    {
+        player = GetComponent<Transform>();
+        if (player == null)
+            throw new UnassignedReferenceException();
+    }
     //Initializes an array of all Light objects in the scene for the purposes of "light detection"
     public void Start()
     {
@@ -27,21 +31,17 @@ public class LightValueDetection : MonoBehaviour {
         CalculateLightValue();
     }
 
+    //NOTE: Additive lighting is not supported by this script. Percentage chances may be erratic when in range of overlapping point lights
     private void CalculateLightValue()
     {
-        //Bool that will reset the lightValue to 0 if no lights are in range
         bool inRangeOfLight = false;
-        //Stores the current highestLightValue as the Lights are iterated through
-        //NOTE: Additive lighting is not supported by this script. Percentage chances may be erratic when in range of overlapping point lights
+        
         float highestLightValue = 0;
-        //For loop to iterate through Lights array
         for (int i = 0; i < sceneLights.Length; i++)
         {
-            //Ensures that the light we are dealing with is of type point.
             if (sceneLights[i].type == LightType.Point)
             {   
                 float playerLightDistance = Vector3.Distance(player.transform.position, sceneLights[i].transform.position);
-                //Determines if the player is within range of this light
                 if (playerLightDistance < sceneLights[i].range)
                 {
                     inRangeOfLight = true;

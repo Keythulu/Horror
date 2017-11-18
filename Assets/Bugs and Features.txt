@@ -1,0 +1,24 @@
+CREATED: 17/11/2017
+	MOVEMENT:	
+		TO-DO:
+			*Clean up FirstPersonController script. I left it pretty messy
+			*Im not completely happy with the Character Controller step offset value fix for the glitching on jumping 
+			while moving towards a low wall. I will look at coming back to this to find a better solution.
+
+		COMPLETED:
+			*If mouse sensitivity is set to 0 in player data, player will be unable to move camera.
+			add a check that will throw an error when it is set to 0.	17/11/2017 11:15PM
+			*Player has full control of movement while jumping. Find solution. 17/11/2017 11:19PM
+	AI:
+		TO-DO:
+			*Enemy scripts need to be looked over and redesigned for readabilty
+			*More elegant solution for chase and investigate AI
+			*Player detection needs a lot of debugging to see how well they can spot a player.
+			*They also give up too easy at the moment lol
+
+	FUTURE FEATURES:
+		*Physics based interaction with doors and lockers. I would also like to have many objects in the scene
+		that can be picked up through this system as well.
+		*A basic inventory system would be cool, perhaps for solving puzzles
+		*I might look into adding weaponry to be more like survival horror or Day Z, but at the moment, I just want
+		to polish movement and AI

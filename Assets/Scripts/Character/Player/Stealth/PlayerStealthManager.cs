@@ -2,32 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerActor))]
 [RequireComponent(typeof(LightValueDetection))]
+[RequireComponent(typeof(FirstPersonController))]
 public class PlayerStealthManager : MonoBehaviour {
 
-    [Header("Required Components: ")]
-    public LightValueDetection lightValueDetection;
+    [HideInInspector] public float currentChanceToReveal;
 
-    [Header("Stealth Chance Values: ")]
-    [Range(0, 100)]
-    public float currentChanceToReveal;
-    [Range(0, 100)]
-    public float baseChanceToReveal;
-    [Range(0, 100)]
-    public float crouchRevealChanceReduction;
+    PlayerActor playerActor;
+    LightValueDetection lightValueDetection;
+    FirstPersonController fpController;
 
-    private bool crouching;
+    public void Awake()
+    {
+        playerActor = GetComponent<PlayerActor>();
+        if (playerActor == null)
+            throw new UnassignedReferenceException();
+        lightValueDetection = GetComponent<LightValueDetection>();
+        if (lightValueDetection == null)
+            throw new UnassignedReferenceException();
+        fpController = GetComponent<FirstPersonController>();
+        if (fpController == null)
+            throw new UnassignedReferenceException();
+    }
 
     public void Update()
     {
         UpdateChanceToReveal();
     }
+
     private void UpdateChanceToReveal()
     {
-        if (crouching)
-            currentChanceToReveal = baseChanceToReveal + lightValueDetection.lightValue + currentChanceToReveal;
+        if (fpController.crouching)
+            currentChanceToReveal = playerActor.playerData.stealthProperties.baseChanceForRevealed + 
+                lightValueDetection.lightValue + 
+                playerActor.playerData.stealthProperties.crouchedChanceModifier;
         else
-            currentChanceToReveal = baseChanceToReveal + lightValueDetection.lightValue;
+            currentChanceToReveal = playerActor.playerData.stealthProperties.baseChanceForRevealed + 
+                lightValueDetection.lightValue;
     }
 
 }

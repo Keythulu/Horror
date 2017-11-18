@@ -219,6 +219,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Actors\PlayerActor.cs" />
     <Compile Include="Assets\Scripts\Character\Enemy\AI\BaseClasses\Action.cs" />
     <Compile Include="Assets\Scripts\Character\Enemy\AI\BaseClasses\Decision.cs" />
     <Compile Include="Assets\Scripts\Character\Enemy\AI\BaseClasses\State.cs" />
@@ -234,15 +235,17 @@
     <Compile Include="Assets\Scripts\Character\Enemy\AI\FirstMainEnemyAI\Decisions\PlayerSpottedDecision.cs" />
     <Compile Include="Assets\Scripts\Character\Enemy\AI\FirstMainEnemyAI\Decisions\ResumePatrolDecision.cs" />
     <Compile Include="Assets\Scripts\Character\Enemy\AI\StateController.cs" />
-    <Compile Include="Assets\Scripts\Character\Enemy\EnemyData\BaseClasses\EnemyData.cs" />
+    <Compile Include="Assets\Scripts\Character\Enemy\Animations\AIAnimController.cs" />
+    <Compile Include="Assets\Scripts\Character\Enemy\EnemyData\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Character\Enemy\EnemyIdentifier.cs" />
     <Compile Include="Assets\Scripts\Character\Player\Flashlight\FlashlightCollisionCheck.cs" />
     <Compile Include="Assets\Scripts\Character\Player\Flashlight\FlashlightController.cs" />
     <Compile Include="Assets\Scripts\Character\Player\Input\FirstPersonController.cs" />
-    <Compile Include="Assets\Scripts\Character\Player\PlayerIdentifier.cs" />
+    <Compile Include="Assets\Scripts\Character\Player\PlayerData\PlayerData.cs" />
     <Compile Include="Assets\Scripts\Character\Player\Stealth\LightValueDetection.cs" />
     <Compile Include="Assets\Scripts\Character\Player\Stealth\PlayerStealthManager.cs" />
     <Compile Include="Assets\Scripts\Debug\DEBUGSoundProducer.cs" />
+    <Compile Include="Assets\Scripts\Debug\RequireComponentTest.cs" />
     <Compile Include="Assets\Scripts\Game Managers\SoundObject.cs" />
     <Compile Include="Assets\Scripts\Game Managers\SoundObjectManager.cs" />
     <Compile Include="Assets\Scripts\Inspectors and Editors\LightFlickerCustomInspector.cs" />
@@ -250,7 +253,8 @@
     <Compile Include="Assets\Scripts\VFX\LightFlicker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Subway Assets\Subway Set\README.txt" />
+    <None Include="Assets\AssetStore\Subway Assets\Subway Set\README.txt" />
+    <None Include="Assets\Bugs and Features.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

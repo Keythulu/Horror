@@ -14,7 +14,7 @@ MonoBehaviour:
   healthValue: 10
   timeInFlashLightToTrigger: 2
   lookRange: 20
-  speed: 5
+  sprintSpeed: 6.5
   attackDamage: 4
   investigateDistance: 0.5
   investigateTimer: 1

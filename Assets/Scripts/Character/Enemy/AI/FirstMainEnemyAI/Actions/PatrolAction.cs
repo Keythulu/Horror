@@ -5,6 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Pluggable AI/Actions/Patrol")]
 public class PatrolAction : Action
 {
+
     public override void Act(StateController controller)
     {
         Patrol(controller);
@@ -12,6 +13,7 @@ public class PatrolAction : Action
 
     private void Patrol(StateController controller)
     {
+        controller.navMeshAgent.speed = controller.currentState.aiSpeed;
         Debug.Log("Patrolling");
         controller.navMeshAgent.destination = controller.debugWaypointList[controller.nextWaypoint].position;
         controller.navMeshAgent.isStopped = false;

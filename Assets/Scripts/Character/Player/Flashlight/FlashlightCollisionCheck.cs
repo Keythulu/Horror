@@ -5,30 +5,41 @@ using UnityEngine;
 [RequireComponent(typeof(FlashlightController))]
 public class FlashlightCollisionCheck : MonoBehaviour {
 
-    public FlashlightController flashlightHandler;
-    public float sphereRadius;
-    public float endOfLightOffset;
+    FlashlightController flashlightController;
+    [SerializeField] float sphereRadius;
+    [SerializeField] float endOfLightOffset;
+    [SerializeField] LayerMask layerMask;
+
+    public void Awake()
+    {
+        flashlightController = GetComponent<FlashlightController>();
+        if (flashlightController == null)
+            throw new UnassignedReferenceException();
+    }
 
     public void Update()
     {
-        RaycastHit hit;
-        Physics.SphereCast(flashlightHandler.flashLight.transform.position, sphereRadius, flashlightHandler.flashLight.transform.forward, out hit, flashlightHandler.flashLight.range - endOfLightOffset);
+        RaycastHit[] hits;
+        hits = Physics.SphereCastAll(flashlightController.flashLight.transform.position, sphereRadius, flashlightController.flashLight.transform.forward, flashlightController.flashLight.range - endOfLightOffset, layerMask);
 
         //Draws the sphere that will be cast when checking for enemies
-        Debug.DrawRay(flashlightHandler.flashLight.transform.position, flashlightHandler.flashLight.transform.forward.normalized * (flashlightHandler.flashLight.range - endOfLightOffset), Color.green);
-        Debug.DrawRay(new Vector3(flashlightHandler.flashLight.transform.position.x, flashlightHandler.flashLight.transform.position.y, flashlightHandler.flashLight.transform.position.z + sphereRadius), flashlightHandler.flashLight.transform.forward.normalized * (flashlightHandler.flashLight.range - endOfLightOffset), Color.green);
-        Debug.DrawRay(new Vector3(flashlightHandler.flashLight.transform.position.x, flashlightHandler.flashLight.transform.position.y, flashlightHandler.flashLight.transform.position.z - sphereRadius), flashlightHandler.flashLight.transform.forward.normalized * (flashlightHandler.flashLight.range - endOfLightOffset), Color.green);
-        Debug.DrawRay(new Vector3(flashlightHandler.flashLight.transform.position.x, flashlightHandler.flashLight.transform.position.y + sphereRadius, flashlightHandler.flashLight.transform.position.z), flashlightHandler.flashLight.transform.forward.normalized * (flashlightHandler.flashLight.range - endOfLightOffset), Color.green);
-        Debug.DrawRay(new Vector3(flashlightHandler.flashLight.transform.position.x, flashlightHandler.flashLight.transform.position.y - sphereRadius, flashlightHandler.flashLight.transform.position.z), flashlightHandler.flashLight.transform.forward.normalized * (flashlightHandler.flashLight.range - endOfLightOffset), Color.green);
+        Debug.DrawRay(flashlightController.flashLight.transform.position, flashlightController.flashLight.transform.forward.normalized * (flashlightController.flashLight.range - endOfLightOffset), Color.green);
+        Debug.DrawRay(new Vector3(flashlightController.flashLight.transform.position.x, flashlightController.flashLight.transform.position.y, flashlightController.flashLight.transform.position.z + sphereRadius), flashlightController.flashLight.transform.forward.normalized * (flashlightController.flashLight.range - endOfLightOffset), Color.green);
+        Debug.DrawRay(new Vector3(flashlightController.flashLight.transform.position.x, flashlightController.flashLight.transform.position.y, flashlightController.flashLight.transform.position.z - sphereRadius), flashlightController.flashLight.transform.forward.normalized * (flashlightController.flashLight.range - endOfLightOffset), Color.green);
+        Debug.DrawRay(new Vector3(flashlightController.flashLight.transform.position.x, flashlightController.flashLight.transform.position.y + sphereRadius, flashlightController.flashLight.transform.position.z), flashlightController.flashLight.transform.forward.normalized * (flashlightController.flashLight.range - endOfLightOffset), Color.green);
+        Debug.DrawRay(new Vector3(flashlightController.flashLight.transform.position.x, flashlightController.flashLight.transform.position.y - sphereRadius, flashlightController.flashLight.transform.position.z), flashlightController.flashLight.transform.forward.normalized * (flashlightController.flashLight.range - endOfLightOffset), Color.green);
 
-        if ((hit.collider != null) && (hit.collider.CompareTag("Enemy")))
+        foreach (RaycastHit hit in hits)
         {
-            StateController enemyStateController = hit.collider.GetComponent<StateController>();
-            //Adds time to the detected enemies currentTimeInFlashlight. This is used for decision making when this value exceeds the enemies threshold.
-            if (enemyStateController)
+            if (hit.collider.CompareTag("Enemy"))
             {
-                enemyStateController.flashlightHoldingPlayer = this.gameObject;
-                enemyStateController.currentTimeInFlashlight += Time.deltaTime;
+                StateController enemyStateController = hit.collider.GetComponent<StateController>();
+                //Adds time to the detected enemies currentTimeInFlashlight. This is used for decision making when this value exceeds the enemies threshold.
+                if (enemyStateController)
+                {
+                    enemyStateController.flashlightHoldingPlayer = gameObject;
+                    enemyStateController.currentTimeInFlashlight += Time.deltaTime;
+                }
             }
         }
     }
@@ -36,7 +47,7 @@ public class FlashlightCollisionCheck : MonoBehaviour {
     //Draws the sphere that will be cast when checking for enemies
     public void OnDrawGizmos()
     {
-        if (flashlightHandler != null)
-            Gizmos.DrawWireSphere(flashlightHandler.flashLight.transform.position, sphereRadius);
+        if (flashlightController != null)
+            Gizmos.DrawWireSphere(flashlightController.flashLight.transform.position, sphereRadius);
     }
 }

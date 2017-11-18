@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Testing/EnemyPathingTestArea.unity
+- path: Assets/_Scenes/Testing/PlayerNavigationTestArea.unity
   isLoaded: 1
   isActive: 1

@@ -5,20 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(Light))]
 public class FlashlightController : MonoBehaviour {
 
-    //References to the objects that are manipulated by this script
-    [Header("Object references: ")]
-    public Light flashLight;
-    public FirstPersonController charController;
-    public Camera firstPersonCamera;
-    [Space()]
-
+    [HideInInspector] public Light flashLight;
+    Camera firstPersonCamera;
     //The linear interpolation speed for all values
     [Header("General Flashlight Settings: ")]
     [Range(0, 1)]
     public float lightLerpSpeed;
     [Space()]
-
-    //Settable ranges for the focussed spotlight range, angle and intensity
+    
     [Header("Focussed Flashlight Settings: ")]
     [Range(0, 20)]
     public float focussedRange;
@@ -30,7 +24,6 @@ public class FlashlightController : MonoBehaviour {
     public int focussedCameraFOV;
     [Space()]
 
-    //Settable ranges for the unfocussed spotlight range, angle and intensity
     [Header("Unfocussed Flashlight Settings: ")]
     [Range(0, 20)]
     public float unfocussedRange;
@@ -42,13 +35,21 @@ public class FlashlightController : MonoBehaviour {
     public int unfocussedCameraFOV;
     [Space()]
 
-    //Whether the user is currently focussing the flashlight or not
-    [HideInInspector] public bool focussing = false;
+    bool focussing = false;
     [HideInInspector] public bool focussed = false;
+
+    public void Awake()
+    {
+        flashLight = GetComponent<Light>();
+        if (flashLight == null)
+            throw new UnassignedReferenceException();
+        firstPersonCamera = GetComponentInParent<Camera>();
+        if (firstPersonCamera == null)
+            throw new UnassignedReferenceException();
+    }
 
     public void Update()
     {
-        //Simple input handler to determine users current input state
         if (Input.GetMouseButtonUp(1))
         {
             focussed = false;

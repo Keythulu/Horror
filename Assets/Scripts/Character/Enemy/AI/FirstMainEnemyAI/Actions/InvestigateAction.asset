@@ -11,3 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9db841c359900314e83090a1c60d0d28, type: 3}
   m_Name: InvestigateAction
   m_EditorClassIdentifier: 
+  aiSpeed: 4

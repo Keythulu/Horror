@@ -13,6 +13,7 @@ public class ChaseAction : Action {
 
     private void Chase(StateController controller)
     {
+        controller.navMeshAgent.speed = controller.currentState.aiSpeed;
         controller.navMeshAgent.destination = controller.chaseTarget.transform.position;
     }
 }
